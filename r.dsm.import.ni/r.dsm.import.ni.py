@@ -83,6 +83,7 @@ TINDEX = (
     "NI_DSM_tindex_proj.gpkg.gz"
 )
 
+CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -95,6 +96,7 @@ rm_vectors = []
 
 def cleanup():
     """Cleaning up function"""
+    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data:
         if download_dir:
@@ -181,7 +183,8 @@ def main():
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
-        grass.run_command("g.region", raster=output, res=ns_res)
+        grass.run_command("g.region", raster=output)
+        grass.run_command("g.region", res=ns_res, flags="a")
         grass.message(_("Resampling / interpolating data..."))
         grass.run_command("g.rename", raster=f"{output},{output}_tmp")
         adjust_raster_resolution(f"{output}_tmp", output, ns_res)
