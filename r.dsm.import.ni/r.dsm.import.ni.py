@@ -83,7 +83,6 @@ TINDEX = (
     "NI_DSM_tindex_proj.gpkg.gz"
 )
 
-CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -96,7 +95,6 @@ rm_vectors = []
 
 def cleanup():
     """Cleaning up function"""
-    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data:
         if download_dir:
