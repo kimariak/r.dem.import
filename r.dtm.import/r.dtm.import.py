@@ -4,20 +4,10 @@
 #
 # MODULE:      r.dtm.import
 # AUTHOR(S):   Anika Weinmann
-#
 # PURPOSE:     Downloads DTM for specified federal state and aoi
-# COPYRIGHT:   (C) 2024 by mundialis GmbH & Co. KG and the GRASS
-#              Development Team
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+#                             GRASS Development Team
+# SPDX-License-Identifier: GPL-3.0-or-later.
 #
 ############################################################################
 
@@ -41,7 +31,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Berlin,BE,Baden-Württemberg,Brandenburg,BB,BW,Bayern,BY,Hamburg,HH,Hessen,HE,Sachsen,NI,Niedersachsen,SN,Thüringen,TH,Nordrhein-Westfalen,NW
+# % options: Berlin,BE,Baden-Württemberg,Brandenburg,BB,BW,Bayern,BY,Bremen,HB,Hamburg,HH,Hessen,HE,Sachsen,NI,Niedersachsen,SN,Thüringen,TH,Nordrhein-Westfalen,NW
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
