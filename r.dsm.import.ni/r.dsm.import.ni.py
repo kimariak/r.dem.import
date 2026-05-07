@@ -4,20 +4,10 @@
 #
 # MODULE:      r.dsm.import.ni
 # AUTHOR(S):   Anika Weinmann, Johannes Halbauer
-#
 # PURPOSE:     Downloads DSM for Niedersachsen and aoi
-# COPYRIGHT:   (C) 2025 by mundialis GmbH & Co. KG and the GRASS
-#              Development Team
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# SPDX-FileCopyrightText: (c) 2025-2026 by mundialis GmbH & Co. KG and the
+#                             GRASS Development Team
+# SPDX-License-Identifier: GPL-3.0-or-later.
 #
 ############################################################################
 
@@ -83,7 +73,6 @@ TINDEX = (
     "NI_DSM_tindex_proj.gpkg.gz"
 )
 
-CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -96,7 +85,6 @@ rm_vectors = []
 
 def cleanup():
     """Cleaning up function"""
-    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data:
         if download_dir:
