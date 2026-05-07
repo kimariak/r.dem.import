@@ -180,7 +180,8 @@ def main():
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
-        grass.run_command("g.region", raster=output, res=ns_res)
+        grass.run_command("g.region", raster=output)
+        grass.run_command("g.region", res=ns_res, flags="a")
         grass.message(_("Resampling / interpolating data..."))
         grass.run_command("g.rename", raster=f"{output},{output}_tmp")
         adjust_raster_resolution(f"{output}_tmp", output, ns_res)
