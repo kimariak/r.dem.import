@@ -4,20 +4,10 @@
 #
 # MODULE:      r.ndsm.import.nw
 # AUTHOR(S):   Anika Weinmann
-#
 # PURPOSE:     Downloads nDSM for Nordrhein-Westfalen and aoi
-# COPYRIGHT:   (C) 2024 by mundialis GmbH & Co. KG and the GRASS
-#              Development Team
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+#                             GRASS Development Team
+# SPDX-License-Identifier: GPL-3.0-or-later.
 #
 ############################################################################
 
@@ -79,7 +69,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/nDSM/NRW/"
+    "https://github.com/mundialis/tile-indices/raw/main/nDSM/NW/"
     "nrw_ndom_tindex_proj.gpkg.gz"
 )
 DATA_BASE_URL = (
