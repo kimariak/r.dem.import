@@ -155,6 +155,7 @@ def main():
             f"r.idsm.import.{fs.lower()}",
             aoi=aoi,
             download_dir=download_dir,
+            alignment_raster=alignment_raster,
             output=out_fs,
             flags=r_idsm_import_fs_flags,
             overwrite=True,

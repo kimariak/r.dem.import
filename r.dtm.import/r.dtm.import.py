@@ -95,7 +95,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.open_geodata_germany.federal_state import (
     get_federal_states,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import create_vrt
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -172,7 +172,6 @@ def main():
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
-    ns_res = grass.region()["nsres"]
 
     # local DTM files
     local_fs_list = []
