@@ -164,13 +164,13 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster
+                "g.region", raster=vrt, align=alignment_raster
             )
         else:
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
         rm_rasters.extend(all_dtm)
