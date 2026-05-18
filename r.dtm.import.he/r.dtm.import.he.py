@@ -178,6 +178,11 @@ def main():
             grass.run_command(
                 "g.region", raster=output, align=alignment_raster
             )
+            ns_res = float(
+                grass.parse_command("r.info", map=alignment_raster, flags="g")[
+                    "nsres"
+                ],
+            )
         else:
             # if no alignemnt raster is given,
             # use extent of imported data and
