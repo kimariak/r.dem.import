@@ -238,7 +238,6 @@ def main():
         mapset="PERMANENT",
         input=output,
         output=output,
-        resolution=res,
         method="bilinear",
         flags="n",
         quiet=True,
