@@ -186,9 +186,7 @@ def main():
         grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region", raster=vrt, align=alignment_raster
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
         else:
             # if no alignemnt raster is given,
             # use extent of imported data and
