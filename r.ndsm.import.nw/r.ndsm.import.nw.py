@@ -34,6 +34,12 @@
 # % multiple: no
 # %end
 
+# %option G_OPT_R_INPUT
+# % key: alignment_raster
+# % required: no
+# % description: Name of raster map, used for raster alignment (if not given, dem extent and region resolution is used)
+# %end
+
 # %option G_OPT_R_OUTPUT
 # % description: Name for output raster map
 # %end
@@ -50,6 +56,7 @@
 
 # %rules
 # % requires_all: -k,download_dir
+# % excludes: -r,alignment_raster
 # %end
 
 import atexit
@@ -108,6 +115,7 @@ def main():
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
+    alignment_raster = options["alignment_raster"]
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
@@ -164,7 +172,20 @@ def main():
         create_vrt(all_ndsms, vrt)
 
         grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.region", raster=vrt, res=ns_res, flags="a")
+        if alignment_raster:
+            # set extent from imported data, and align with alignment raster
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
+            ns_res = float(
+                grass.parse_command("r.info", map=alignment_raster, flags="g")[
+                    "nsres"
+                ],
+            )
+        else:
+            # if no alignemnt raster is given,
+            # use extent of imported data and
+            # set and align with current region resolution
+            grass.run_command("g.region", raster=vrt)
+            grass.run_command("g.region", res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
         rm_rasters.extend(all_ndsms)
     else:

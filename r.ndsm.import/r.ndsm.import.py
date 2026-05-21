@@ -72,6 +72,12 @@
 # % multiple: no
 # %end
 
+# %option G_OPT_R_INPUT
+# % key: alignment_raster
+# % required: no
+# % description: Name of raster map, used for raster alignment (if not given, dem extent and region resolution is used)
+# %end
+
 # %option G_OPT_R_OUTPUT
 # % description: Name for output raster map
 # %end
@@ -88,6 +94,7 @@
 
 # %rules
 # % requires_all: -k,download_dir
+# % excludes: -r,alignment_raster
 # %end
 
 import atexit
@@ -190,6 +197,7 @@ def main():
     local_data_dir_dsm = options["local_data_dir_dsm"]
     local_data_dir_dtm = options["local_data_dir_dtm"]
     download_dir = check_download_dir(options["download_dir"])
+    alignment_raster = options["alignment_raster"]
     output = options["output"]
     keep_data = flags["k"]
     nativ_res = flags["r"]
@@ -251,6 +259,7 @@ def main():
                 f"r.ndsm.import.{fs.lower()}",
                 aoi=aoi,
                 download_dir=os.path.join(download_dir, "nDSM"),
+                alignment_raster=alignment_raster,
                 output=ndsm_out,
                 flags=import_flags,
                 quiet=True,
@@ -274,6 +283,7 @@ def main():
                 federal_state=fs,
                 local_data_dir=local_data_dir_dsm,
                 download_dir=os.path.join(download_dir, "DSM"),
+                alignment_raster=alignment_raster,
                 output=dsm_out,
                 flags=import_flags,
                 quiet=True,
@@ -307,6 +317,7 @@ def main():
                 federal_state=fs,
                 local_data_dir=local_data_dir_dtm,
                 download_dir=os.path.join(download_dir, "DTM"),
+                alignment_raster=alignment_raster,
                 output=dtm_out,
                 flags=import_flags,
                 quiet=True,
@@ -332,7 +343,7 @@ def main():
     # create VRT
     if len(ndsm_list) > 0:
         create_vrt(ndsm_list, output)
-        # chechk result for completness
+        # check result for completeness
         check_completeness_of_ndsm(aoi, output)
     else:
         grass.fatal(_("No nDSM imported!"))
