@@ -45,7 +45,7 @@
 # %end
 
 # %option
-# % key: layer_name
+# % key: layer_names
 # % required: yes
 # % multiple: yes
 # % description: Layer name of tile-DEM to import
@@ -75,6 +75,11 @@
 # %option G_OPT_R_OUTPUT
 # % key: raster_name
 # % description: Name of raster output
+# %end
+
+# %option
+# % key: raster_name_list
+# % description: List of all output rasters
 # %end
 
 # %flag
@@ -110,7 +115,7 @@ rm_group = []
 # pylint: disable=C0103
 original_nprocs = None
 
-RETRIES = 30
+RETRIES = 3
 WAITING_TIME = 10
 
 
@@ -133,13 +138,15 @@ def main():
     # parser options
     tile_key = options["tile_key"]
     tile_url = options["tile_url"]
-    layer_name = options["layer_name"]
+    layer_names_string = options["layer_names"]
     raster_name = options["raster_name"]
     resolution_to_import = None
     if options["resolution_to_import"]:
         resolution_to_import = float(options["resolution_to_import"])
     orig_region = options["orig_region"]
     new_mapset = options["new_mapset"]
+
+    layer_names_list = layer_names_string.split(",")
 
     # set nprocs to 1, write original value in variable
     gisenv = grass.parse_command("g.gisenv", get="")
@@ -166,17 +173,52 @@ def main():
             f"Started DEM import for key: {tile_key} and URL: {tile_url}",
         ),
     )
+    
+    raster_name_list = []
+    for layer_name in layer_names_list:
+        output_raster = f"{raster_name}_{layer_name}"
+        import_dem_from_wms(
+            f"{tile_key}@{old_mapset}",
+            output_raster,
+            tile_url,
+            resolution_to_import,
+            layer_name,
+            flags["r"],
+            "tiff",
+        )
+        raster_name_info = grass.raster_info(output_raster)
+    
+        # Prüfen ob richtige min/max werte -> nicht NULL
+        if raster_name_info["min"] is not None and raster_name_info["max"] is not None:
+            raster_name_list.append(output_raster)
+        else:
+            # Ungültige Raster direkt entfernen
+            grass.run_command(
+                "g.remove",
+                type="raster",
+                name=output_raster,
+                flags="f",
+                quiet=True,
+            )
 
-    # import DEMs from WMS
-    import_dem_from_wms(
-        f"{tile_key}@{old_mapset}",
-        raster_name,
-        tile_url,
-        layer_name,
-        fs,
-        flags["r"],
-        "tiff",
-    )
+    # Falls kein einziges gültig war
+    if not raster_name_list:
+        grass.fatal("TODO: Fehlermeldung")
+
+    # Falls nur eins gültig war -> direkt verwenden
+    elif len(raster_name_list) == 1:
+        grass.run_command(
+            "g.rename",
+            raster=f"{raster_name_list[0]},{raster_name}",
+        )
+
+    # Mehrere gültige Raster -> patchen
+    else:
+        grass.run_command(
+            "r.patch",
+            input=raster_name_list,
+            output=raster_name,
+        )
 
     # switch back to original location
     switch_back_original_location(gisrc)
@@ -186,7 +228,6 @@ def main():
             f"DEM import for key: {tile_key} and URL: {tile_url} done!",
         ),
     )
-
 
 if __name__ == "__main__":
     options, flags = grass.parser()

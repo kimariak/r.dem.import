@@ -237,17 +237,17 @@ def create_grid_and_tiles_list(
 
 def import_dem_from_wms(
     tile_key,
-    rastername,
+    raster_name,
     tile_url,
     resolution_to_import,
     layer_name,
     native_res,
     data_format="tiff",
-):
+): 
     """Import DEMs from WMS
     Args:
         tile_key (str): Key of current tile
-        rastername (str): Name of resulting raster
+        raster_name (str): Name of resulting raster
         tile_url (str): WMS URLs to get DEMs
         resolution_to_import (float): Resolution to resample imported raster to
         layer_name (str): Name of WMS Layer, given as Layer_{fs}
