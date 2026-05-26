@@ -133,6 +133,7 @@ def setup_parallel_processing(nprocs):
     )
     return nprocs
 
+
 def create_grid_and_tiles_list(
     ns_res,
     ew_res,
@@ -212,7 +213,8 @@ def create_grid_and_tiles_list(
     grass.message(_(f"Number of tiles: {number_tiles}"))
     tiles_list = []
     for tile in tiles_num_list:
-        # TODO Möglichkeit nach DTM oder DSM zu bennenen einfügen, bis dahin mit DEM bezeichnet
+        # TODO Möglichkeit nach DTM oder DSM zu bennenen einfügen,
+        # bis dahin mit DEM bezeichnet
         tile_area = f"{fs}_DEM_{tile}"
         grass.run_command(
             "v.extract",
@@ -225,6 +227,7 @@ def create_grid_and_tiles_list(
         rm_vectors.append(tile_area)
 
     return rm_vectors, number_tiles, tiles_list
+
 
 def import_dem_from_wms(
     tile_key,

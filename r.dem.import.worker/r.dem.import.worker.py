@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.dem.import.worker
-# AUTHOR(S):   Johannes Halbauer, Lina Krisztian, Leon Louwarts
+# AUTHOR(S):   Johannes Halbauer, Lina Krisztian, Leon Louwarts, Kim Kaiser
 # PURPOSE:     Downloads Digital Elevation Models (DEMs) within a specified area
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
@@ -188,8 +188,10 @@ def main():
         raster_name_info = grass.raster_info(output_raster)
 
         # Prüfen ob richtige min/max werte -> nicht NULL
-        if raster_name_info["min"] is not None and raster_name_info["max"] \
-        is not None:
+        if (
+            raster_name_info["min"] is not None
+            and raster_name_info["max"] is not None
+        ):
             raster_name_list.append(output_raster)
         else:
             # Ungültige Raster direkt entfernen
@@ -228,6 +230,7 @@ def main():
             f"DEM import for key: {tile_key} and URL: {tile_url} done!",
         ),
     )
+
 
 if __name__ == "__main__":
     options, flags = grass.parser()

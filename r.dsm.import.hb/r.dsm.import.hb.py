@@ -114,6 +114,7 @@ def cleanup():
         rm_dirs=rm_dirs,
     )
 
+
 def main():
     """Main function of r.dsm.import.hb"""
     global rm_vectors
@@ -253,6 +254,7 @@ def main():
                 )
 
     create_vrt(create_vrt_list, output)
+
 
 if __name__ == "__main__":
     options, flags = grass.parser()
