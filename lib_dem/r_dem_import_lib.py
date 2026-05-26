@@ -5,7 +5,7 @@
 # MODULE:      r_dem_import_lib
 # AUTHOR(S):   Anika Weinmann, Kim Kaiser
 # PURPOSE:     Library for r.dem.import
-## SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
+# SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
 #
@@ -16,15 +16,6 @@ from time import sleep
 import grass.script as grass
 
 from grass_gis_helpers.general import set_nprocs
-from grass_gis_helpers.location import (
-    get_current_location,
-    create_tmp_location,
-)
-from grass_gis_helpers.open_geodata_germany.download_data import (
-    download_data_using_threadpool,
-    extract_compressed_files,
-)
-from grass_gis_helpers.raster import rename_raster
 
 OPEN_DATA_AVAILABILITY = {
     "DTM": {
@@ -243,7 +234,7 @@ def import_dem_from_wms(
     layer_name,
     native_res,
     data_format="tiff",
-): 
+):
     """Import DEMs from WMS
     Args:
         tile_key (str): Key of current tile

@@ -97,7 +97,6 @@ from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
-from grass_gis_helpers.raster import adjust_raster_resolution
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -173,7 +172,7 @@ def main():
             f"Started DEM import for key: {tile_key} and URL: {tile_url}",
         ),
     )
-    
+
     raster_name_list = []
     for layer_name in layer_names_list:
         output_raster = f"{raster_name}_{layer_name}"
@@ -187,9 +186,10 @@ def main():
             "tiff",
         )
         raster_name_info = grass.raster_info(output_raster)
-    
+
         # Prüfen ob richtige min/max werte -> nicht NULL
-        if raster_name_info["min"] is not None and raster_name_info["max"] is not None:
+        if raster_name_info["min"] is not None and raster_name_info["max"] \
+        is not None:
             raster_name_list.append(output_raster)
         else:
             # Ungültige Raster direkt entfernen

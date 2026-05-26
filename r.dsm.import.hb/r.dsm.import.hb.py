@@ -98,7 +98,7 @@ rm_vectors = []
 download_dir = None
 rm_dirs = []
 
-WMS_URL= (
+WMS_URL = (
     "https://geodienste.bremen.de/wms_dom1?REQUEST=GetCapabilities&SERVICE"
     "=WMS&VERSION=1.3.0&"
 )
@@ -113,7 +113,6 @@ def cleanup():
         rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
     )
- 
 
 def main():
     """Main function of r.dsm.import.hb"""
@@ -208,7 +207,7 @@ def main():
             key = tile
             new_mapset = f"tmp_mapset_r_dem_import_tile_{key}_{os.getpid()}"
             rm_dirs.append(os.path.join(gisdbase, location, new_mapset))
-            raster_name = f"tmp_{tile}_{ID}"
+            raster_name = f"{tile}_{ID}"
             create_vrt_list.append(f"{raster_name}@{new_mapset}")
             param = {
                 "tile_key": key,
@@ -232,17 +231,16 @@ def main():
             else:
                 param["resolution_to_import"] = ns_res
             # run worker addon in parallel
-            # r_dem_import_worker = Module(
-            grass.run_command(
+            r_dem_import_worker = Module(
                 "r.dem.import.worker",
                 **param,
-               # run_=False,
+                run_=False,
             )
             # catch all GRASS output to stdout and stderr
-        #     r_dem_import_worker.stdout = grass.PIPE
-        #     r_dem_import_worker.stderr = grass.PIPE
-        #     queue.put(r_dem_import_worker)
-        # queue.wait()
+            r_dem_import_worker.stdout = grass.PIPE
+            r_dem_import_worker.stderr = grass.PIPE
+            queue.put(r_dem_import_worker)
+        queue.wait()
     except Exception:
         for proc_num in range(queue.get_num_run_procs()):
             proc = queue.get(proc_num)
