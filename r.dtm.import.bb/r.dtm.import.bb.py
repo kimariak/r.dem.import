@@ -34,6 +34,12 @@
 # % multiple: no
 # %end
 
+# %option G_OPT_R_INPUT
+# % key: alignment_raster
+# % required: no
+# % description: Name of raster map, used for raster alignment (if not given, dem extent and region resolution is used)
+# %end
+
 # %option G_OPT_R_OUTPUT
 # % description: Name for output raster map
 # %end
@@ -50,6 +56,7 @@
 
 # %rules
 # % requires_all: -k,download_dir
+# % excludes: -r,alignment_raster
 # %end
 
 import atexit
@@ -123,6 +130,7 @@ def main():
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
+    alignment_raster = options["alignment_raster"]
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
@@ -218,14 +226,16 @@ def main():
     switch_back_original_location(tgtgisrc)
     if not native_res:
         res = ns_res
-    grass.run_command("g.region", vector=aoi, res=res, flags="a")
+    if alignment_raster:
+        grass.run_command("g.region", vector=aoi, align=alignment_raster)
+    else:
+        grass.run_command("g.region", vector=aoi, res=res, flags="a")
     grass.run_command(
         "r.proj",
         location=tmploc,
         mapset="PERMANENT",
         input=output,
         output=output,
-        resolution=res,
         method="bilinear",
         flags="n",
         quiet=True,
