@@ -168,6 +168,7 @@ def main():
 
     # set region if aoi is given
     if aoi:
+        # pylint: disable=E0601
         grass.run_command("g.region", vector=aoi, res=ns_res, flags="a")
     # if no aoi save region as aoi
     else:

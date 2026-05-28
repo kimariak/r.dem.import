@@ -277,6 +277,6 @@ def import_dem_from_wms(
                 flags="f",
             )
             grass.message(_("Retry download..."))
-            if count > (RETRIES / 2):
+            if count > (retries / 2):
                 grass.fatal(f"Download of {tile_url} not working.")
             sleep(10)
