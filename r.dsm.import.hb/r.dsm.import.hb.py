@@ -34,6 +34,12 @@
 # % multiple: no
 # %end
 
+# %option G_OPT_R_INPUT
+# % key: alignment_raster
+# % required: no
+# % description: Name of raster map, used for raster alignment (if not given, dem extent and region resolution is used)
+# %end
+
 # %option G_OPT_R_OUTPUT
 # % description: Name for output raster map
 # %end
@@ -63,6 +69,7 @@
 
 # %rules
 # % requires_all: -k,download_dir
+# % excludes: -r,alignment_raster
 # %end
 
 import atexit
@@ -77,7 +84,7 @@ from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import create_vrt
+from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -95,6 +102,7 @@ except Exception as imp_err:
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 rm_vectors = []
+rm_rasters = []
 download_dir = None
 rm_dirs = []
 
@@ -111,6 +119,7 @@ def cleanup():
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_vectors=rm_vectors,
+        rm_rasters=rm_rasters,
         rm_dirs=rm_dirs,
     )
 
@@ -120,6 +129,7 @@ def main():
     global rm_vectors
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
+    alignment_raster = options["alignment_raster"]
     nprocs = int(options["nprocs"])
     nprocs = setup_parallel_processing(nprocs)
     output = options["output"]
@@ -198,6 +208,7 @@ def main():
     gisenv = grass.gisenv()
     gisdbase = gisenv["GISDBASE"]
     location = gisenv["LOCATION_NAME"]
+
     # set queue and variables for worker addon
     create_vrt_list = []
     try:
@@ -208,7 +219,7 @@ def main():
             key = tile
             new_mapset = f"tmp_mapset_r_dem_import_tile_{key}_{os.getpid()}"
             rm_dirs.append(os.path.join(gisdbase, location, new_mapset))
-            raster_name = f"{tile}_{ID}"
+            raster_name = tile
             create_vrt_list.append(f"{raster_name}@{new_mapset}")
             param = {
                 "tile_key": key,
@@ -220,6 +231,7 @@ def main():
                 "flags": "",
             }
             grass.message(_(f"raster name: {raster_name}"))
+
             # modify params
             if aoi:
                 param["aoi"] = aoi
@@ -231,6 +243,7 @@ def main():
                 param["resolution_to_import"] = NATIVE_DSM_RES
             else:
                 param["resolution_to_import"] = ns_res
+
             # run worker addon in parallel
             r_dem_import_worker = Module(
                 "r.dem.import.worker",
@@ -254,6 +267,29 @@ def main():
                 )
 
     create_vrt(create_vrt_list, output)
+    if not flags["r"]:
+        if alignment_raster:
+            # set extent from imported data, and align with alignment raster
+            grass.run_command(
+                "g.region", raster=output, align=alignment_raster
+            )
+            ns_res = float(
+                grass.parse_command("r.info", map=alignment_raster, flags="g")[
+                    "nsres"
+                ],
+            )
+        else:
+            # if no alignemnt raster is given,
+            # use extent of imported data and
+            # set and align with current region resolution
+            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", res=ns_res, flags="a")
+        grass.message(_("Resampling / interpolating data..."))
+        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
+        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
+        rm_rasters.append(f"{output}_tmp")
+
+    grass.message(_(f"Generated following raster map: {output}"))
 
 
 if __name__ == "__main__":

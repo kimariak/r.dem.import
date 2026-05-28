@@ -77,11 +77,6 @@
 # % description: Name of raster output
 # %end
 
-# %option
-# % key: raster_name_list
-# % description: List of all output rasters
-# %end
-
 # %flag
 # % key: r
 # % description: Use native DEM resolution
@@ -101,7 +96,7 @@ from grass_gis_helpers.mapset import switch_to_new_mapset
 # import module library
 path = get_lib_path(modname="r.dem.import")
 if path is None:
-    grass.fatal("Unable to find the dop library directory.")
+    grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
     from r_dem_import_lib import import_dem_from_wms
@@ -114,7 +109,7 @@ rm_group = []
 # pylint: disable=C0103
 original_nprocs = None
 
-RETRIES = 3
+RETRIES = 30
 WAITING_TIME = 10
 
 
@@ -173,9 +168,14 @@ def main():
         ),
     )
 
+    # add all generated rasters to a list, later used to create vrt
     raster_name_list = []
+
+    # iterate through all layers
     for layer_name in layer_names_list:
         output_raster = f"{raster_name}_{layer_name}"
+
+        # import DEMs from WMS
         import_dem_from_wms(
             f"{tile_key}@{old_mapset}",
             output_raster,
@@ -187,40 +187,35 @@ def main():
         )
         raster_name_info = grass.raster_info(output_raster)
 
-        # Prüfen ob richtige min/max werte -> nicht NULL
+        # test if raster is invalid
         if (
             raster_name_info["min"] is not None
             and raster_name_info["max"] is not None
         ):
             raster_name_list.append(output_raster)
         else:
-            # Ungültige Raster direkt entfernen
-            grass.run_command(
-                "g.remove",
-                type="raster",
-                name=output_raster,
-                flags="f",
-                quiet=True,
-            )
+            rm_rast.append(output_raster)
 
-    # Falls kein einziges gültig war
+    # no valid raster
     if not raster_name_list:
-        grass.fatal("TODO: Fehlermeldung")
+        grass.fatal("Unable to find DEM matching the given aoi")
 
-    # Falls nur eins gültig war -> direkt verwenden
+    # one valid raster
     elif len(raster_name_list) == 1:
         grass.run_command(
             "g.rename",
             raster=f"{raster_name_list[0]},{raster_name}",
         )
 
-    # Mehrere gültige Raster -> patchen
+    # multiple valid rasters
     else:
         grass.run_command(
             "r.patch",
             input=raster_name_list,
             output=raster_name,
         )
+
+    grass.message(_(f"Finishing raster import for {raster_name}..."))
 
     # switch back to original location
     switch_back_original_location(gisrc)

@@ -112,7 +112,6 @@ OPEN_DATA_AVAILABILITY = {
     },
 }
 
-RETRIES = 30
 WAITING_TIME = 10
 
 
@@ -158,7 +157,7 @@ def create_grid_and_tiles_list(
 
     Returns:
         rm_vectors (list): Extended list of vectors to remove in cleanup
-        nummber_tiles (str): Number of tiles overlapping with aoi
+        number_tiles (str): Number of tiles overlapping with aoi
         tiles_list (list): List of tile names overlapping with aoi
     """
     # check if aoi is smaller than tile size
@@ -213,8 +212,6 @@ def create_grid_and_tiles_list(
     grass.message(_(f"Number of tiles: {number_tiles}"))
     tiles_list = []
     for tile in tiles_num_list:
-        # TODO Möglichkeit nach DTM oder DSM zu bennenen einfügen,
-        # bis dahin mit DEM bezeichnet
         tile_area = f"{fs}_DEM_{tile}"
         grass.run_command(
             "v.extract",
@@ -237,6 +234,7 @@ def import_dem_from_wms(
     layer_name,
     native_res,
     data_format="tiff",
+    retries=30,
 ):
     """Import DEMs from WMS
     Args:
@@ -246,8 +244,10 @@ def import_dem_from_wms(
         resolution_to_import (float): Resolution to resample imported raster to
         layer_name (str): Name of WMS Layer, given as Layer_{fs}
         native_res (bool): Keep native DEM resolution
+        retries (int): Set how often function is retried
     """
-    # set region and create variable names
+
+    # set region
     grass.run_command("g.region", vector=tile_key)
     if not native_res:
         grass.run_command("g.region", res=resolution_to_import, flags="a")
