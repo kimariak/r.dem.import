@@ -2,9 +2,9 @@
 #
 ############################################################################
 #
-# MODULE:      r.dem.import.worker
+# MODULE:      r.dem.import.wms.worker
 # AUTHOR(S):   Johannes Halbauer, Lina Krisztian, Leon Louwarts, Kim Kaiser
-# PURPOSE:     Downloads Digital Elevation Models (DEMs) within a specified area
+# PURPOSE:     Downloads Digital Elevation Models (DEMs) within a specified area via WMS
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
@@ -12,7 +12,7 @@
 #############################################################################
 
 # %Module
-# % description: Downloads and imports single Digital Elevation Models (DEMs)
+# % description: Downloads and imports single Digital Elevation Models (DEMs) via WMS
 # % keyword: imagery
 # % keyword: download
 # % keyword: DEM
@@ -25,14 +25,6 @@
 # %end
 
 # %option
-# % key: download_dir
-# % label: Path to output folder
-# % description: Path to download folder
-# % required: no
-# % multiple: no
-# %end
-
-# %option
 # % key: tile_key
 # % required: yes
 # % description: Key of tile-DEM to import
@@ -41,7 +33,7 @@
 # %option
 # % key: tile_url
 # % required: yes
-# % description: URL of tile-DEM to import
+# % description: WMS URL of tile-DEM to import
 # %end
 
 # %option
@@ -127,7 +119,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dem.import.worker"""
+    """Main function of r.dem.import.wms.worker"""
     global original_nprocs
     # parser options
     tile_key = options["tile_key"]
@@ -143,9 +135,9 @@ def main():
     layer_names_list = layer_names_string.split(",")
 
     # set nprocs to 1, write original value in variable
-    gisenv = grass.parse_command("g.gisenv", get="")
+    gisenv = grass.gisenv()
     if "NPROCS" in gisenv:
-        original_nprocs = gisenv["NPROCS"]
+        original_nprocs = int(gisenv["NPROCS"])
     grass.run_command("g.gisenv", set="NPROCS=1")
 
     # output resolution

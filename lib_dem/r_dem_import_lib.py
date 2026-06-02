@@ -212,7 +212,7 @@ def create_grid_and_tiles_list(
     grass.message(_(f"Number of tiles: {number_tiles}"))
     tiles_list = []
     for tile in tiles_num_list:
-        tile_area = f"{fs}_DEM_{tile}"
+        tile_area = f"{fs}_DEM_{tile}_{ID}"
         grass.run_command(
             "v.extract",
             input=grid_name,
@@ -234,7 +234,7 @@ def import_dem_from_wms(
     layer_name,
     native_res,
     data_format="tiff",
-    retries=30,
+    retries=10,
 ):
     """Import DEMs from WMS
     Args:
@@ -242,7 +242,7 @@ def import_dem_from_wms(
         raster_name (str): Name of resulting raster
         tile_url (str): WMS URLs to get DEMs
         resolution_to_import (float): Resolution to resample imported raster to
-        layer_name (str): Name of WMS Layer, given as Layer_{fs}
+        layer_name (str): Name of WMS Layer
         native_res (bool): Keep native DEM resolution
         retries (int): Set how often function is retried
     """
@@ -253,7 +253,7 @@ def import_dem_from_wms(
         grass.run_command("g.region", res=resolution_to_import, flags="a")
     tile_key = tile_key.split("@")[0]
 
-    # import wms data and retry download if wms fails 15 times
+    # import wms data and retry download if wms fails
     trydownload = True
     count = 0
     while trydownload:
@@ -277,6 +277,6 @@ def import_dem_from_wms(
                 flags="f",
             )
             grass.message(_("Retry download..."))
-            if count > (retries / 2):
+            if count > retries:
                 grass.fatal(f"Download of {tile_url} not working.")
             sleep(10)

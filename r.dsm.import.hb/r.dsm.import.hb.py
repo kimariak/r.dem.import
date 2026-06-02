@@ -4,7 +4,7 @@
 #
 # MODULE:      r.dsm.import.hb
 # AUTHOR(S):   Kim Kaiser, Anika Weinmann
-# PURPOSE:     Downloads DSM for Bremen, Bremerhaven and aoi
+# PURPOSE:     Downloads DSM for Bremen/Bremerhaven
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
@@ -12,7 +12,7 @@
 ############################################################################
 
 # %module
-# % description: Downloads DSM for Bremen, Bremerhaven and aoi.
+# % description: Downloads DSM for Bremen/Bremerhaven
 # % keyword: raster
 # % keyword: import
 # % keyword: DOM
@@ -135,7 +135,7 @@ def main():
     output = options["output"]
     fs = "HB"
 
-    # print warning that memory will be irgnored
+    # print warning that memory will be ignored
     # (no memory parameter in worker module)
     if options["memory"]:
         grass.warning(
@@ -236,8 +236,6 @@ def main():
             # modify params
             if aoi:
                 param["aoi"] = aoi
-            if options["download_dir"]:
-                param["download_dir"] = download_dir
             if flags["k"]:
                 param["flags"] += "k"
             if flags["r"]:
@@ -252,9 +250,9 @@ def main():
                 run_=False,
             )
             # catch all GRASS output to stdout and stderr
-            r_dem_import_worker.stdout = grass.PIPE
-            r_dem_import_worker.stderr = grass.PIPE
-            queue.put(r_dem_import_worker)
+            r_dem_import_wms_worker.stdout = grass.PIPE
+            r_dem_import_wms_worker.stderr = grass.PIPE
+            queue.put(r_dem_import_wms_worker)
         queue.wait()
     except Exception:
         for proc_num in range(queue.get_num_run_procs()):
