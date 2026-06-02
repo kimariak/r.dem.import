@@ -1,6 +1,6 @@
 MODULE_TOPDIR = ../..
 
-PGM = r.dem.import.worker
+PGM = r.dem.wms.worker
 
 include $(MODULE_TOPDIR)/include/Make/Python.make
 include $(MODULE_TOPDIR)/include/Make/Script.make
