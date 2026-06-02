@@ -26,6 +26,14 @@
 # % required: no
 # %end
 
+# %option
+# % key: download_dir
+# % label: Path to output folder
+# % description: Path to download folder
+# % required: no
+# % multiple: no
+# %end
+
 # %option G_OPT_R_INPUT
 # % key: alignment_raster
 # % required: no
@@ -50,12 +58,17 @@
 # %end
 
 # %flag
+# % key: k
+# % label: Keep downloaded data in the download directory
+# %end
+
+# %flag
 # % key: r
 # % label: Use native data resolution
 # %end
 
 # %rules
-# % requires_all:
+# % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
 # %end
 
@@ -68,6 +81,9 @@ from grass.pygrass.modules import Module, ParallelModuleQueue
 from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.open_geodata_germany.download_data import (
+    check_download_dir,
+)
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # import module library
@@ -112,6 +128,7 @@ def main():
     """Main function of r.dsm.import.hb"""
     global rm_vectors
     aoi = options["aoi"]
+    download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
     nprocs = int(options["nprocs"])
     nprocs = setup_parallel_processing(nprocs)
@@ -227,8 +244,8 @@ def main():
                 param["resolution_to_import"] = ns_res
 
             # run worker addon in parallel
-            r_dem_import_wms_worker = Module(
-                "r.dem.import.wms.worker",
+            r_dem_import_worker = Module(
+                "r.dem.import.worker",
                 **param,
                 run_=False,
             )
