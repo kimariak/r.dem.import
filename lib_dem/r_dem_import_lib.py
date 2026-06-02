@@ -212,7 +212,7 @@ def create_grid_and_tiles_list(
     grass.message(_(f"Number of tiles: {number_tiles}"))
     tiles_list = []
     for tile in tiles_num_list:
-        tile_area = f"{fs}_DEM_{tile}_{ID}"
+        tile_area = f"{fs}_DEM_{tile}_{id}"
         grass.run_command(
             "v.extract",
             input=grid_name,
