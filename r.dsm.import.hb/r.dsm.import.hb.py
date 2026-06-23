@@ -81,9 +81,6 @@ from grass.pygrass.modules import Module, ParallelModuleQueue
 from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.open_geodata_germany.download_data import (
-    check_download_dir,
-)
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # import module library
@@ -128,7 +125,6 @@ def main():
     """Main function of r.dsm.import.hb"""
     global rm_vectors
     aoi = options["aoi"]
-    download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
     nprocs = int(options["nprocs"])
     nprocs = setup_parallel_processing(nprocs)
@@ -236,10 +232,6 @@ def main():
             # modify params
             if aoi:
                 param["aoi"] = aoi
-            if options["download_dir"]:
-                param["download_dir"] = download_dir
-            if flags["k"]:
-                param["flags"] += "k"
             if flags["r"]:
                 param["resolution_to_import"] = NATIVE_DSM_RES
             else:
