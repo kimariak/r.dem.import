@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.idsm.import.hh
-# AUTHOR(S):   Anika Weinmann
+# AUTHOR(S):   Veronica Koess, Anika Weinmann
 # PURPOSE:     Downloads iDSM for Hamburg and aoi
 # SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
