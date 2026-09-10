@@ -83,7 +83,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 )
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
-    create_vrt,
+    #create_vrt,
     vrt_to_raster,
 )
 
@@ -93,7 +93,6 @@ TINDEX = (
     "nw_idsm_tindex_proj.gpkg.gz"
 )
 RESOLUTION = 0.5
-
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -114,6 +113,74 @@ def cleanup():
         rm_rasters=rm_rasters,
         rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
+    )
+
+
+# Vorschlag für grass-gis-helpers: 
+# in create_vrt direkt den vrt auf aoi/region clippen. Dadurch wird 
+# xyz_clip_region_aoi aus der lib nicht mehr benötigt. Auch praktisch für laz, da 
+# dafür sonst noch ein neues clip_.... angelegt werden muss.
+def create_vrt(
+    input_raster_list, 
+    output, aoi=None, 
+    region=None, 
+    copy_raster_maps=True,
+    ):
+    """Create a VRT raster map out of input list, or renaming if only one
+    raster is inside the list. If the input raster maps are inside other
+    mapsets they will be copied to the current mapset before the VRT will be
+    created. The VRT will be clipped to aoi/region.
+
+    Args:
+        input_raster_list (list): List with input raster maps
+        output (str): Name of the output (vrt) raster map
+        aoi (str): AOI if given
+        region (str): Region (if no AOI given)
+        copy_raster_maps (boolean): Flag if raster maps from different mapsets
+                                    should be copied (Default: True)
+
+    """
+    # copy raster maps to current mapset
+    for rast in input_raster_list:
+        if "@" in rast and copy_raster_maps:
+            rast_wo_mapsetname = rast.split("@")[0]
+            grass.run_command(
+                "g.copy",
+                raster=f"{rast},{rast_wo_mapsetname}",
+            )
+    tmp_out = f"tmp_{output}"
+    input_raster_list = [val.split("@")[0] for val in input_raster_list]
+    # buildvrt if required + renaming to output name
+    if len(input_raster_list) > 1:
+        grass.run_command("g.region", raster=input_raster_list)
+        grass.run_command(
+            "r.buildvrt",
+            input=input_raster_list,
+            output=tmp_out,
+            quiet=True,
+            overwrite=True,
+        )
+    else:
+        grass.run_command(
+            "g.rename",
+            raster=f"{input_raster_list[0]},{tmp_out}",
+            quiet=True,
+            overwrite=True,
+        )
+
+    #clip VRT to aoi (if given) or region.
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=tmp_out)
+    elif region:
+        grass.run_command("g.region", region=region, align=tmp_out)
+    else:
+        grass.fatal(
+            "Neither 'region' nor 'aoi' is set, but one of them is required",
+        )
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{output} = {tmp_out}",
+        quiet=True,
     )
 
 
@@ -161,12 +228,19 @@ def main():
         import_single_local_las_file(las_file, idsm_name, RESOLUTION)
         all_idsms.append(idsm_name)
 
-    # Create VRT of tiles
+    # Create VRT of tiles and clip to aoi/region
     # (dont copy raster maps -> create real raster in the next steps)
-    vrt = f"vrt_idsm_{output}_{ID}"
+    vrt = f"vrt_{output}"
     rm_rasters.append(vrt)
     rm_rasters.extend(all_idsms)
-    create_vrt(all_idsms, vrt, copy_raster_maps=False)
+    create_vrt(
+        all_idsms, 
+        vrt, 
+        aoi=aoi, 
+        region=ORIG_REGION, 
+        copy_raster_maps=False
+    )
+
 
     # resample / interpolate whole VRT (because interpolating single files lead
     # to emplty rows and columns)
